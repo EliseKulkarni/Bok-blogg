@@ -1,0 +1,69 @@
+name: Build og publiser bokblogg
+
+on:
+  schedule:
+    - cron: "7 6 * * *" # 06:07 UTC hver dag
+  workflow_dispatch: # lar deg trigge manuelt fra Actions-fanen på GitHub
+  push:
+    branches: [main]
+
+permissions:
+  contents: write # for å committe oppdatert cache tilbake til repoet
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sjekk ut repo
+        uses: actions/checkout@v4
+
+      - name: Sett opp Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Hent bøker fra Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATA_SOURCE_ID: ${{ vars.NOTION_DATA_SOURCE_ID }}
+        run: node scripts/fetch-books.mjs
+
+      - name: Commit oppdatert cache (hvis noe endret seg)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/*.json
+          git diff --staged --quiet || git commit -m "chore: oppdater bok-cache fra Notion"
+          git push
+
+      - name: Bygg Astro-siden
+        run: npm run build
+
+      - name: Konfigurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Last opp build-artefakt
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publiser til GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

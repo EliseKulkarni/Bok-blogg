@@ -1,0 +1,32 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { slugify } from "../lib/slug";
+
+const books = (await getCollection("books")).sort(
+  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
+);
+
+const base = import.meta.env.BASE_URL;
+---
+<Layout title="Bokblogg">
+  <ul class="book-list">
+    {books.map((book) => (
+      <li class="book-card">
+        <h2><a href={`${base}bok/${book.id}/`}>{book.data.title}</a></h2>
+        <p class="meta">
+          {book.data.author ?? "Ukjent forfatter"}
+          {book.data.rating !== null && <> · {book.data.rating}/10</>}
+        </p>
+        {book.data.essensen && <p class="essensen">{book.data.essensen}</p>}
+        {book.data.tags.length > 0 && (
+          <div class="tags">
+            {book.data.tags.map((tag) => (
+              <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
+            ))}
+          </div>
+        )}
+      </li>
+    ))}
+  </ul>
+</Layout>

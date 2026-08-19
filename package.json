@@ -2,7 +2,18 @@
   "name": "bokblogg",
   "type": "module",
   "private": true,
+  "scripts": {
+    "fetch:books": "node --env-file=.env scripts/fetch-books.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
   "dependencies": {
-    "@notionhq/client": "^5.25.2"
+    "@notionhq/client": "^5.25.2",
+    "astro": "^7.2.4",
+    "notion-to-md": "^3.1.9"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }

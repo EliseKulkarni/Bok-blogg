@@ -1,0 +1,35 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import { slugify } from "../../lib/slug";
+
+export async function getStaticPaths() {
+  const books = await getCollection("books");
+  return books.map((book) => ({
+    params: { slug: book.id },
+    props: { book },
+  }));
+}
+
+const { book } = Astro.props;
+const { Content } = await render(book);
+const base = import.meta.env.BASE_URL;
+---
+<Layout title={`${book.data.title} — Bokblogg`}>
+  <a class="back-link" href={base}>&larr; Alle bøker</a>
+  <h1>{book.data.title}</h1>
+  <p class="detail-meta">
+    {book.data.author ?? "Ukjent forfatter"}
+    {book.data.rating !== null && <> · <span class="rating">{book.data.rating}/10</span></>}
+  </p>
+  {book.data.tags.length > 0 && (
+    <div class="tags">
+      {book.data.tags.map((tag) => (
+        <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
+      ))}
+    </div>
+  )}
+  <article>
+    <Content />
+  </article>
+</Layout>
