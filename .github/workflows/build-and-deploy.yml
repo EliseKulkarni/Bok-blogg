@@ -30,7 +30,7 @@ jobs:
           cache: npm
 
       - name: Installer avhengigheter
-        run: npm ci
+        run: npm install
 
       - name: Hent bøker fra Notion
         env:
