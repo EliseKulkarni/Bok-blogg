@@ -1,5 +1,4 @@
 ---
-import fs from "node:fs";
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { slugify } from "../lib/slug";
@@ -9,17 +8,12 @@ const books = (await getCollection("books")).sort(
 );
 
 const base = import.meta.env.BASE_URL;
-const hasAvatar = fs.existsSync(new URL("../../public/BildeLinkedIn.jpg", import.meta.url));
 
 const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: "short", year: "numeric" });
 ---
 <Layout title="Bokblogg — bokanmeldelser">
   <section class="intro">
-    {hasAvatar ? (
-      <img class="avatar" src={`${base}BildeLinkedIn.jpg`} alt="Elise" />
-    ) : (
-      <div class="avatar cover-placeholder" aria-hidden="true">E</div>
-    )}
+    <img class="avatar" src={`${base}BildeLinkedIn.jpg`} alt="Elise" />
     <div>
       <h2>Hei, jeg er Elise 👋</h2>
       <p>
