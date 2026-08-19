@@ -9,14 +9,14 @@ const books = (await getCollection("books")).sort(
 );
 
 const base = import.meta.env.BASE_URL;
-const hasAvatar = fs.existsSync(new URL("../../public/meg.jpg", import.meta.url));
+const hasAvatar = fs.existsSync(new URL("../../public/BildeLinkedIn.jpg", import.meta.url));
 
 const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: "short", year: "numeric" });
 ---
 <Layout title="Bokblogg — bokanmeldelser">
   <section class="intro">
     {hasAvatar ? (
-      <img class="avatar" src={`${base}meg.jpg`} alt="Elise" />
+      <img class="avatar" src={`${base}BildeLinkedIn.jpg`} alt="Elise" />
     ) : (
       <div class="avatar cover-placeholder" aria-hidden="true">E</div>
     )}
