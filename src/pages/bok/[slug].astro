@@ -14,21 +14,36 @@ export async function getStaticPaths() {
 const { book } = Astro.props;
 const { Content } = await render(book);
 const base = import.meta.env.BASE_URL;
+const description = book.data.essensen ?? `Anmeldelse av ${book.data.title}`;
 ---
-<Layout title={`${book.data.title} — Bokblogg`}>
+<Layout
+  title={`${book.data.title} — Bokblogg`}
+  description={description}
+  image={book.data.coverUrl}
+  narrow
+>
   <a class="back-link" href={base}>&larr; Alle bøker</a>
-  <h1>{book.data.title}</h1>
-  <p class="detail-meta">
-    {book.data.author ?? "Ukjent forfatter"}
-    {book.data.rating !== null && <> · <span class="rating">{book.data.rating}/10</span></>}
-  </p>
-  {book.data.tags.length > 0 && (
-    <div class="tags">
-      {book.data.tags.map((tag) => (
-        <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
-      ))}
+  <div class="detail-header">
+    {book.data.coverUrl ? (
+      <img class="cover detail-cover" src={book.data.coverUrl} alt={`Omslag: ${book.data.title}`} />
+    ) : (
+      <div class="cover-placeholder detail-cover" aria-hidden="true">{book.data.title[0]}</div>
+    )}
+    <div>
+      <h1>{book.data.title}</h1>
+      <p class="detail-meta">
+        {book.data.author ?? "Ukjent forfatter"}
+        {book.data.rating !== null && <> · <span class="rating">{book.data.rating}/10</span></>}
+      </p>
+      {book.data.tags.length > 0 && (
+        <div class="tags">
+          {book.data.tags.map((tag) => (
+            <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
+          ))}
+        </div>
+      )}
     </div>
-  )}
+  </div>
   <article>
     <Content />
   </article>

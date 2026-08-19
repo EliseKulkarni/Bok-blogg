@@ -9,10 +9,27 @@ const books = (await getCollection("books")).sort(
 
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title="Bokblogg">
-  <ul class="book-list">
+<Layout title="Bokblogg — bokanmeldelser">
+  <section class="intro">
+    <h2>Hei, jeg er Elise 👋</h2>
+    <p>
+      Jeg er student og leser mye — mest sakprosa om læring, vaner og det å
+      forstå seg selv litt bedre. Her samler jeg korte, ærlige anmeldelser av
+      bøkene jeg faktisk leser, automatisk hentet fra notatene mine i Notion.
+      Ingen filter, ingen sponsing — bare det jeg selv tenkte etterpå.
+    </p>
+  </section>
+
+  <ul class="book-grid">
     {books.map((book) => (
       <li class="book-card">
+        <a class="cover-link" href={`${base}bok/${book.id}/`}>
+          {book.data.coverUrl ? (
+            <img class="cover" src={book.data.coverUrl} alt={`Omslag: ${book.data.title}`} loading="lazy" />
+          ) : (
+            <div class="cover-placeholder" aria-hidden="true">{book.data.title[0]}</div>
+          )}
+        </a>
         <h2><a href={`${base}bok/${book.id}/`}>{book.data.title}</a></h2>
         <p class="meta">
           {book.data.author ?? "Ukjent forfatter"}

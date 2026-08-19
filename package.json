@@ -9,6 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "@notionhq/client": "^5.25.2",
     "astro": "^7.2.4",
     "notion-to-md": "^3.1.9"

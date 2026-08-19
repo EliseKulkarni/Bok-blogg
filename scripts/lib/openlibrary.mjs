@@ -25,7 +25,7 @@ function splitTitleAuthor(rawTitle) {
 }
 
 async function searchOpenLibrary(title) {
-  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1&fields=author_name,subject`;
+  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1&fields=author_name,subject,cover_i`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Open Library svarte ${res.status} for "${title}"`);
   const data = await res.json();
@@ -33,6 +33,7 @@ async function searchOpenLibrary(title) {
   return {
     author: doc?.author_name?.[0] ?? null,
     tags: cleanSubjects(doc?.subject ?? []),
+    coverUrl: doc?.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : null,
   };
 }
 
@@ -53,20 +54,35 @@ export async function lookupBook(rawTitle) {
 
   if (cache[cacheKey]) {
     const cached = cache[cacheKey];
-    return { title: cleanTitle, author: inlineAuthor ?? cached.author, tags: cached.tags };
+    return {
+      title: cleanTitle,
+      author: inlineAuthor ?? cached.author,
+      tags: cached.tags,
+      coverUrl: cached.coverUrl ?? null,
+      resolved: true,
+    };
   }
 
-  let result = { author: null, tags: [] };
+  let result;
+  let resolved;
   try {
     result = await searchOpenLibrary(cleanTitle);
+    cache[cacheKey] = result;
+    cacheDirty = true;
+    resolved = true;
   } catch (err) {
-    console.warn(`[openlibrary] Oppslag feilet for "${cleanTitle}": ${err.message} — fortsetter uten forfatter/tags.`);
+    console.warn(`[openlibrary] Oppslag feilet for "${cleanTitle}": ${err.message} — prøver på nytt neste kjøring.`);
+    result = { author: null, tags: [], coverUrl: null };
+    resolved = false;
   }
 
-  cache[cacheKey] = result;
-  cacheDirty = true;
-
-  return { title: cleanTitle, author: inlineAuthor ?? result.author, tags: result.tags };
+  return {
+    title: cleanTitle,
+    author: inlineAuthor ?? result.author,
+    tags: result.tags,
+    coverUrl: result.coverUrl,
+    resolved,
+  };
 }
 
 export function flushOpenLibraryCache() {

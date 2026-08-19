@@ -7,7 +7,9 @@
       "International relations",
       "Fiction",
       "Imperialism"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/811927-M.jpg",
+    "resolved": true
   },
   "2c59ef86-0d22-80c5-ac15-f0d5e4068268": {
     "lastEditedTime": "2026-06-01T11:28:00.000Z",
@@ -17,7 +19,9 @@
       "Management",
       "Marketing",
       "Strategisch management"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/3812733-M.jpg",
+    "resolved": true
   },
   "3539ef86-0d22-809f-84b9-df90d65e07b0": {
     "lastEditedTime": "2026-06-01T11:28:00.000Z",
@@ -25,13 +29,17 @@
     "author": "Ryan Holiday",
     "tags": [
       "New York Times bestseller"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/13153179-M.jpg",
+    "resolved": true
   },
   "3639ef86-0d22-8054-acb0-efba6f86aa22": {
     "lastEditedTime": "2026-06-01T11:28:00.000Z",
     "markdown": "\n**AI-generert oppsummering:**\n\n\n### Kjerneideen\n\n\nFor å unngå kognitive feller og ta bedre beslutninger, må vi slutte å tenke i fagdisipliner – og begynne å tenke i grafer. Kompliserte ideer fra psykologi, økonomi og filosofi blir mer intuitive og minneverdige når de visualiseres\n\n\n---\n\n\n### Hva boken inneholder\n\n\nErez presenterer 52 konseptuelle modeller som hjelper oss å forstå verden rundt oss – én per uke gjennom et år. Målet er at leseren internaliserer og aktivt bruker disse modellene i hverdagslige beslutninger.\n\n\nPrinsippene er hentet fra psykologi, sosiologi, økonomi og filosofi, og inkluderer blant annet: Dunning-Kruger-effekten, Paretos lov (80/20-prinsippet), beslutningstrøtthet, tapsaversjon, tilskuereffekten, loven om avtakende avkastning, Yerkes-Dodson-loven og sammenhengen mellom lykke og inntekt\n\n\n---\n\n\n### Et utvalg av de 52 prinsippene\n\n\n**Dunning-Kruger-effekten**\nNybegynnere overestimerer sin egen kompetanse, eksperter underestimerer den. Grafen viser en typisk «mount stupid»-kurve – selvtillit faller dramatisk jo mer man faktisk lærer.\n\n\n**Paretos lov (80/20)**\n20 % av innsatsen gir 80 % av resultatene. Gjelder overraskende bredt – fra forretning til relasjoner til treningsprogresjon.\n\n\n**Tapsaversjon**\nVi tillegger det å ikke tape noe langt mer verdi enn det å vinne tilsvarende. Erez bruker eksemplet med å finne 100 kr på gaten kontra å miste 100 kr – smerten av tapet er psykologisk mye sterkere.\n\n\n**Yerkes-Dodson-loven**\nStress og prestasjon har en omvendt U-form. For lite press gir lav ytelse; for mye gir sammenbrudd. Det finnes en optimal «søtsone» for stress.\n\n\n**Zeigarnik-effekten**\nUferdige oppgaver lever i hodet og skaper kognitiv støy – noe som kan brukes bevisst for å holde motivasjonen oppe.\n\n",
     "author": null,
-    "tags": []
+    "tags": [],
+    "coverUrl": null,
+    "resolved": true
   },
   "3729ef86-0d22-8051-946b-ebeef1db933c": {
     "lastEditedTime": "2026-06-01T11:47:00.000Z",
@@ -41,7 +49,9 @@
       "Charisma (Personality trait)",
       "Développement d'aptitudes",
       "Communication"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/13882953-M.jpg",
+    "resolved": true
   },
   "37d9ef86-0d22-80fa-8a31-f90e9f7c071d": {
     "lastEditedTime": "2026-06-12T13:33:00.000Z",
@@ -51,6 +61,8 @@
       "Mathematics",
       "Study and teaching",
       "Math anxiety"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/8352403-M.jpg",
+    "resolved": true
   }
 }

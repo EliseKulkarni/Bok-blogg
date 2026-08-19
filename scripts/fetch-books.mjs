@@ -80,10 +80,11 @@ async function main() {
     const lastEditedTime = page.last_edited_time;
     const cached = cache[page.id];
 
-    let markdown, author, tags;
+    const contentUnchanged = cached && cached.lastEditedTime === lastEditedTime;
 
-    if (cached && cached.lastEditedTime === lastEditedTime) {
-      ({ markdown, author, tags } = cached);
+    let markdown;
+    if (contentUnchanged) {
+      markdown = cached.markdown;
     } else {
       try {
         const mdBlocks = await n2m.pageToMarkdown(page.id);
@@ -98,12 +99,19 @@ async function main() {
           continue;
         }
       }
+    }
 
+    // Kjør Open Library-oppslag på nytt hvis innholdet endret seg, eller forrige
+    // oppslag var en nettverksfeil (ikke et bekreftet "fant ingenting").
+    let author, tags, coverUrl;
+    if (contentUnchanged && cached.resolved) {
+      ({ author, tags, coverUrl = null } = cached);
+    } else {
       const lookup = await lookupBook(title);
       author = lookup.author;
       tags = lookup.tags;
-
-      cache[page.id] = { lastEditedTime, markdown, author, tags };
+      coverUrl = lookup.coverUrl;
+      cache[page.id] = { lastEditedTime, markdown, author, tags, coverUrl, resolved: lookup.resolved };
     }
 
     books.push({
@@ -116,6 +124,7 @@ async function main() {
       dateAdded: page.created_time,
       author,
       tags,
+      coverUrl,
       markdown,
     });
   }
@@ -147,6 +156,7 @@ async function main() {
       `rating: ${book.rating ?? "null"}`,
       `status: ${frontmatterValue(book.status)}`,
       `tags: ${JSON.stringify(book.tags)}`,
+      `coverUrl: ${frontmatterValue(book.coverUrl)}`,
       `essensen: ${frontmatterValue(book.essensen)}`,
       `dateAdded: ${frontmatterValue(book.dateAdded)}`,
       `notionId: ${frontmatterValue(book.id)}`,

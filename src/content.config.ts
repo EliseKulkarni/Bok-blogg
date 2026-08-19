@@ -9,6 +9,7 @@ const books = defineCollection({
     rating: z.number().nullable(),
     status: z.string(),
     tags: z.array(z.string()),
+    coverUrl: z.string().nullable(),
     essensen: z.string().nullable(),
     dateAdded: z.coerce.date(),
     notionId: z.string(),

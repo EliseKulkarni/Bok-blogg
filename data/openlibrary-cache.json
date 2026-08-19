@@ -5,13 +5,15 @@
       "Mathematics",
       "Study and teaching",
       "Math anxiety"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/8352403-M.jpg"
   },
   "discipline is destiny": {
     "author": "Ryan Holiday",
     "tags": [
       "New York Times bestseller"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/13153179-M.jpg"
   },
   "principles": {
     "author": "Philip Kotler",
@@ -19,7 +21,8 @@
       "Management",
       "Marketing",
       "Strategisch management"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/3812733-M.jpg"
   },
   "roar": {
     "author": "Leonard Wibberley",
@@ -27,11 +30,13 @@
       "International relations",
       "Fiction",
       "Imperialism"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/811927-M.jpg"
   },
   "the art of thinking in graphs": {
     "author": null,
-    "tags": []
+    "tags": [],
+    "coverUrl": null
   },
   "the charisma myth": {
     "author": "Olivia Fox Cabane",
@@ -39,6 +44,7 @@
       "Charisma (Personality trait)",
       "Développement d'aptitudes",
       "Communication"
-    ]
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/13882953-M.jpg"
   }
 }
