@@ -36,6 +36,7 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATA_SOURCE_ID: ${{ vars.NOTION_DATA_SOURCE_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # valgfri, se README
         run: node scripts/fetch-books.mjs
 
       - name: Commit oppdatert cache (hvis noe endret seg)

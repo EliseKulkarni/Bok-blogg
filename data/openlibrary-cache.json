@@ -8,6 +8,15 @@
     ],
     "coverUrl": "https://covers.openlibrary.org/b/id/8352403-M.jpg"
   },
+  "a mind for numbers|barbara oakley": {
+    "author": "Barbara A. Oakley",
+    "tags": [
+      "Mathematics",
+      "Study and teaching",
+      "Math anxiety"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/8352403-M.jpg"
+  },
   "discipline is destiny": {
     "author": "Ryan Holiday",
     "tags": [
@@ -15,23 +24,48 @@
     ],
     "coverUrl": "https://covers.openlibrary.org/b/id/13153179-M.jpg"
   },
-  "principles": {
-    "author": "Philip Kotler",
+  "discipline is destiny|ryan holiday": {
+    "author": "Ryan Holiday",
     "tags": [
-      "Management",
-      "Marketing",
-      "Strategisch management"
+      "New York Times bestseller"
     ],
-    "coverUrl": "https://covers.openlibrary.org/b/id/3812733-M.jpg"
+    "coverUrl": "https://covers.openlibrary.org/b/id/13153179-M.jpg"
+  },
+  "principles": {
+    "author": "Ray Dalio",
+    "tags": [
+      "Investment advisors",
+      "Conduct of life",
+      "Success"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/8315355-M.jpg"
+  },
+  "principles|ray dalio": {
+    "author": "Ray Dalio",
+    "tags": [
+      "Investment advisors",
+      "Conduct of life",
+      "Success"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/8315355-M.jpg"
   },
   "roar": {
-    "author": "Leonard Wibberley",
+    "author": "Stacy T. Sims",
     "tags": [
-      "International relations",
-      "Fiction",
-      "Imperialism"
+      "Women athletes",
+      "Nutrition",
+      "Health and hygiene"
     ],
-    "coverUrl": "https://covers.openlibrary.org/b/id/811927-M.jpg"
+    "coverUrl": "https://covers.openlibrary.org/b/id/12550912-M.jpg"
+  },
+  "roar|stacy sims": {
+    "author": "Stacy T. Sims",
+    "tags": [
+      "Women athletes",
+      "Nutrition",
+      "Health and hygiene"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/12550912-M.jpg"
   },
   "the art of thinking in graphs": {
     "author": null,
@@ -39,6 +73,15 @@
     "coverUrl": null
   },
   "the charisma myth": {
+    "author": "Olivia Fox Cabane",
+    "tags": [
+      "Charisma (Personality trait)",
+      "Développement d'aptitudes",
+      "Communication"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/13882953-M.jpg"
+  },
+  "the charisma myth|olivia fox cabane": {
     "author": "Olivia Fox Cabane",
     "tags": [
       "Charisma (Personality trait)",

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { Client } from "@notionhq/client";
 import { NotionToMarkdown } from "notion-to-md";
 import { lookupBook, flushOpenLibraryCache } from "./lib/openlibrary.mjs";
+import { getTeaser, flushTeaserCache } from "./lib/teaser.mjs";
 import { slugify } from "./lib/slug.mjs";
 
 const CACHE_PATH = fileURLToPath(new URL("../data/books-cache.json", import.meta.url));
@@ -101,18 +102,22 @@ async function main() {
       }
     }
 
-    // Kjør Open Library-oppslag på nytt hvis innholdet endret seg, eller forrige
-    // oppslag var en nettverksfeil (ikke et bekreftet "fant ingenting").
+    const manualAuthor = (props.Author?.rich_text ?? []).map((t) => t.plain_text).join("") || null;
+
+    // Kjør Open Library-oppslag på nytt hvis innholdet endret seg, det manuelle forfatterfeltet
+    // endret seg, eller forrige oppslag var en nettverksfeil (ikke et bekreftet "fant ingenting").
     let author, tags, coverUrl;
-    if (contentUnchanged && cached.resolved) {
+    if (contentUnchanged && cached.resolved && cached.manualAuthor === manualAuthor) {
       ({ author, tags, coverUrl = null } = cached);
     } else {
-      const lookup = await lookupBook(title);
+      const lookup = await lookupBook(title, manualAuthor);
       author = lookup.author;
       tags = lookup.tags;
       coverUrl = lookup.coverUrl;
-      cache[page.id] = { lastEditedTime, markdown, author, tags, coverUrl, resolved: lookup.resolved };
+      cache[page.id] = { lastEditedTime, markdown, author, tags, coverUrl, resolved: lookup.resolved, manualAuthor };
     }
+
+    const teaser = await getTeaser(markdown);
 
     books.push({
       id: page.id,
@@ -125,6 +130,7 @@ async function main() {
       author,
       tags,
       coverUrl,
+      teaser,
       markdown,
     });
   }
@@ -135,6 +141,7 @@ async function main() {
   }
   saveCache(cache);
   flushOpenLibraryCache();
+  flushTeaserCache();
 
   // Gjør slugs unike innad i denne kjøringen
   const slugCounts = new Map();
@@ -157,6 +164,7 @@ async function main() {
       `status: ${frontmatterValue(book.status)}`,
       `tags: ${JSON.stringify(book.tags)}`,
       `coverUrl: ${frontmatterValue(book.coverUrl)}`,
+      `teaser: ${frontmatterValue(book.teaser)}`,
       `essensen: ${frontmatterValue(book.essensen)}`,
       `dateAdded: ${frontmatterValue(book.dateAdded)}`,
       `notionId: ${frontmatterValue(book.id)}`,

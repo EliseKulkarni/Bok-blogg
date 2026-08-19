@@ -15,6 +15,7 @@ const { book } = Astro.props;
 const { Content } = await render(book);
 const base = import.meta.env.BASE_URL;
 const description = book.data.essensen ?? `Anmeldelse av ${book.data.title}`;
+const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: "short", year: "numeric" });
 ---
 <Layout
   title={`${book.data.title} — Bokblogg`}
@@ -32,8 +33,9 @@ const description = book.data.essensen ?? `Anmeldelse av ${book.data.title}`;
     <div>
       <h1>{book.data.title}</h1>
       <p class="detail-meta">
-        {book.data.author ?? "Ukjent forfatter"}
-        {book.data.rating !== null && <> · <span class="rating">{book.data.rating}/10</span></>}
+        <span>{book.data.author ?? "Ukjent forfatter"}</span>
+        {book.data.rating !== null && <span class="rating-badge">★ {book.data.rating}/10</span>}
+        <span class="upload-date">{dateFormatter.format(book.data.dateAdded)}</span>
       </p>
       {book.data.tags.length > 0 && (
         <div class="tags">

@@ -24,8 +24,11 @@ function splitTitleAuthor(rawTitle) {
   return { title: rawTitle.trim(), author: null };
 }
 
-async function searchOpenLibrary(title) {
-  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1&fields=author_name,subject,cover_i`;
+async function searchOpenLibrary(title, author) {
+  // Kjenner vi forfatteren allerede (fra "Tittel by Forfatter"-mønsteret), bruk den til å
+  // disambiguere søket — ellers matcher vi lett feil bok når flere bøker deler tittel.
+  const authorParam = author ? `&author=${encodeURIComponent(author)}` : "";
+  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}${authorParam}&limit=1&fields=author_name,subject,cover_i`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Open Library svarte ${res.status} for "${title}"`);
   const data = await res.json();
@@ -48,15 +51,18 @@ function cleanSubjects(subjects) {
 const cache = loadCache();
 let cacheDirty = false;
 
-export async function lookupBook(rawTitle) {
+// knownAuthor: forfatter fra Notion sitt eget Author-felt (manuelt utfylt) — mest pålitelig
+// kilde vi har, brukes både i selve søket (for riktig omslag/tags) og som endelig svar.
+export async function lookupBook(rawTitle, knownAuthor = null) {
   const { title: cleanTitle, author: inlineAuthor } = splitTitleAuthor(rawTitle);
-  const cacheKey = cleanTitle.toLowerCase();
+  const trustedAuthor = knownAuthor || inlineAuthor;
+  const cacheKey = trustedAuthor ? `${cleanTitle.toLowerCase()}|${trustedAuthor.toLowerCase()}` : cleanTitle.toLowerCase();
 
   if (cache[cacheKey]) {
     const cached = cache[cacheKey];
     return {
       title: cleanTitle,
-      author: inlineAuthor ?? cached.author,
+      author: trustedAuthor ?? cached.author,
       tags: cached.tags,
       coverUrl: cached.coverUrl ?? null,
       resolved: true,
@@ -66,7 +72,7 @@ export async function lookupBook(rawTitle) {
   let result;
   let resolved;
   try {
-    result = await searchOpenLibrary(cleanTitle);
+    result = await searchOpenLibrary(cleanTitle, trustedAuthor);
     cache[cacheKey] = result;
     cacheDirty = true;
     resolved = true;
@@ -78,7 +84,7 @@ export async function lookupBook(rawTitle) {
 
   return {
     title: cleanTitle,
-    author: inlineAuthor ?? result.author,
+    author: trustedAuthor ?? result.author,
     tags: result.tags,
     coverUrl: result.coverUrl,
     resolved,
