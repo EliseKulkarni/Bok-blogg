@@ -142,6 +142,15 @@ header.site h1 a { color: var(--text); text-decoration: none; }
 }
 .book-card .tags { margin-top: auto; padding-top: 0.5rem; }
 
+.detail-essensen {
+  margin: 1rem 0;
+  font-size: 1rem;
+  color: var(--muted);
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
 .rating-badge {
   display: inline-flex;
   align-items: center;

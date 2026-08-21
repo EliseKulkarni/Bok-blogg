@@ -46,6 +46,7 @@ const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: 
       )}
     </div>
   </div>
+  {book.data.essensen && <p class="essensen detail-essensen">{book.data.essensen}</p>}
   <article>
     <Content />
   </article>
