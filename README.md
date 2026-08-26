@@ -1,31 +1,32 @@
 # bokblogg
 
-Statisk bokblogg som henter bokanmeldelser fra Notion og bygger seg selv på schedule.
+Statisk bokblogg som henter bokanmeldelser fra Notion og bygger seg selv automatisk hver dag.
 
 Live: https://elisekulkarni.github.io/Bok-blogg/
 
 ## Stack
 
-- [Astro](https://astro.build) + TypeScript — statisk site-generator
-- Notion som CMS (`@notionhq/client` + `notion-to-md`) — ingen database, ingen backend
-- Open Library API — henter forfatter/sjanger automatisk basert på boktittel
-- GitHub Actions (bygg på schedule) + GitHub Pages (hosting)
+- Astro + TypeScript for selve siden
+- Notion som CMS (via `@notionhq/client` og `notion-to-md`) — ingen database, ingen egen backend
+- Open Library API for å slå opp forfatter og sjanger ut fra boktittel
+- GitHub Actions bygger siden på schedule, GitHub Pages hoster den
 
-## Hvordan det henger sammen
+## Slik henger det sammen
 
-1. Du skriver en anmeldelse i Notion, markerer boken som `Ja` (ferdig) eller `80%` (nesten ferdig, har skrevet oppsummering)
-2. GitHub Actions kjører automatisk hver dag (`.github/workflows/build-and-deploy.yml`), henter alle bøker med den statusen fra Notion, slår opp forfatter/sjanger, konverterer anmeldelsen til markdown, bygger Astro-siden, og publiserer til GitHub Pages
-3. `data/books-cache.json` og `data/openlibrary-cache.json` committes automatisk tilbake til repoet av Action-en — dette gjør at neste kjøring bare trenger å reprosessere bøker som faktisk er endret (basert på Notion sin `last_edited_time`), i stedet for å gjøre alt arbeidet på nytt hver gang
+1. Du skriver en anmeldelse i Notion og setter status til `Ja` (ferdig) eller `80%` (nesten ferdig, oppsummering skrevet).
+2. Hver dag kjører en GitHub Action (`.github/workflows/build-and-deploy.yml`) som henter alle bøker med den statusen, slår opp forfatter/sjanger på Open Library, gjør om anmeldelsen til markdown, bygger siden med Astro, og publiserer til GitHub Pages. Du kan også trigge den manuelt fra Actions-fanen.
+3. `data/books-cache.json` og `data/openlibrary-cache.json` blir committet tilbake til repoet av Action-en selv. Det gjør at neste kjøring bare trenger å behandle bøker som faktisk har endret seg i Notion, i stedet for å gjøre alt arbeidet på nytt hver gang.
+4. Hvis du legger inn en `ANTHROPIC_API_KEY`, blir teaser-teksten på forsiden generert av Claude i stedet for en enkel 200-tegns fallback av starten på anmeldelsen.
 
 ## Kjøre lokalt
 
-Krever [Node.js](https://nodejs.org) (LTS eller nyere).
+Krever Node.js (LTS eller nyere).
 
 ```bash
 npm install
 ```
 
-Lag en `.env`-fil (kopier `.env.example`) med din egen Notion-integrasjonstoken:
+Kopier `.env.example` til `.env` og legg inn din egen Notion-integrasjonstoken:
 
 ```
 NOTION_TOKEN=ntn_...
@@ -38,13 +39,13 @@ Hent bøker fra Notion og generer innhold:
 npm run fetch:books
 ```
 
-Start lokal dev-server:
+Start dev-server:
 
 ```bash
 npm run dev
 ```
 
-Bygg produksjonsversjon:
+Bygg produksjonsversjon og se på den lokalt:
 
 ```bash
 npm run build
@@ -53,13 +54,15 @@ npm run preview
 
 ## Secrets i GitHub Actions
 
-Under repoets **Settings → Secrets and variables → Actions**:
+Under repoets Settings → Secrets and variables → Actions:
 
-- **Secrets-fanen** → **New repository secret** → `NOTION_TOKEN` = din Notion-integrasjonstoken (hemmelig, samme som i `.env` lokalt)
-- **Variables-fanen** → **New repository variable** → `NOTION_DATA_SOURCE_ID` = `29c9ef86-0d22-80e5-ab67-000b2fa83c62` (ikke hemmelig i seg selv — brukes som variabel, ikke secret)
+- Secrets-fanen → New repository secret → `NOTION_TOKEN` (samme token som lokalt i `.env`)
+- Variables-fanen → New repository variable → `NOTION_DATA_SOURCE_ID` = `29c9ef86-0d22-80e5-ab67-000b2fa83c62` (ikke hemmelig, brukes bare som variabel)
 
-Under **Settings → Pages**: sett **Source** til **GitHub Actions** (ikke "Deploy from a branch").
+Valgfritt: legg til `ANTHROPIC_API_KEY` som secret hvis du vil ha ekte teasere generert av Claude i stedet for fallback-teksten.
+
+Under Settings → Pages: sett Source til "GitHub Actions" (ikke "Deploy from a branch").
 
 ## Legge til flere bøker
 
-Ingenting — bare skriv anmeldelsen i Notion og sett status til `Ja` eller `80%`. Siden oppdaterer seg selv innen 24 timer, eller umiddelbart hvis du trigger workflowen manuelt fra **Actions**-fanen på GitHub (**Run workflow**-knappen).
+Ingenting å gjøre i koden — skriv anmeldelsen i Notion og sett status til `Ja` eller `80%`. Siden oppdaterer seg selv innen 24 timer, eller med en gang hvis du trigger workflowen manuelt.
