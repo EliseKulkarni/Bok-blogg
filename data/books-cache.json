@@ -70,5 +70,18 @@
     "coverUrl": "https://covers.openlibrary.org/b/id/8352403-M.jpg",
     "resolved": true,
     "manualAuthor": "Barbara Oakley"
+  },
+  "3c89ef86-0d22-80ab-a9ee-ef15c9d8f0be": {
+    "lastEditedTime": "2026-08-27T05:59:00.000Z",
+    "markdown": "\n![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/250a94cc-c267-467f-84d8-13adb4735b0e/25a1cbd6-b754-460a-8e31-0367c7cac2f7/image.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466TV4YJDQP%2F20260827%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20260827T173543Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEHEaCXVzLXdlc3QtMiJHMEUCIEC2%2BjVxnX3eN9f%2BSGT%2F3LfUOZRbBADEQsG5aPg4Q2w8AiEAl6o61s1kUrE9ZVZ7LykQoqTNTFykagTLBz6JVd%2B5mbIq%2FwMIOhAAGgw2Mzc0MjMxODM4MDUiDHbryqRa4vrY2aeWmCrcAzaSCW6zewmQt6PWIe3jYOiyJh0saHy6HMErf3tkUsV1kc5m8turJ%2Bk18szAvRE18W6OsnyzdV3oFzARdvBWPMLCxALSM%2FZAR%2Fyo6R8nfIgpR2DBtS7ai2C6XcJCs7QtUJA6nmmhJNG%2FwtcMZClplWNLd9jf7K73pJZc%2BSgPXCxlmnZszHxtNxLFl4cTuh4axwxThyJcZ5rXyfjmoRdY0tRfjS1rEO4Up3PjfeRULwapT2K70GEf8iVbe73zKbXbRUUM5z1r2LQGlQ0II1A0VwS0yRtKN4jyWftwhhYu2%2BUFdupkR3aFbmx9rp2t4QG0n4zAs7rHTveL0NlY82xvA1y4APS6Uk%2F1ZPia3Hbs7tXbqhxwpFTCLm8WB3JsQCcDUe5oeaM2dWNQZhW5v0tR8UPS8iyv0vw047xu3rtLGSayDdBCvBNx4o4PkJyx5%2FEm9kjuInMDhejA%2BawiqpiA2BfzFADDuQ%2Ff2RLi%2B7imc5Y%2BwFg8b1Ovi3Hjdw6j%2Bn5jcLdK7UMHEqLNx0sLKP3BXZ%2F%2B4QQSQC5h%2FJnqLXS%2B7OSKDtttjPv0dkZ86FkMs5pWwlobPW7H7nxBWCX9BEI2HnE7CG6mYYsiYXArcR1etgIieYGD4po1z0RaINLBMIbRwdQGOqUBxXS3deGZkRZ%2B6SFiZ4%2FZhKK0OjzHP%2FUITS7PwaWLSbHdbk%2BIIHa3e8pE%2FKBc4dNh3Vs8Sd%2FIJ4fk%2FiNo2AB5fM7CFZ8%2FXoKquhpPz8CJZoWTF6uTNtdEDtPBdaUdZYiVM3gjVOExbdjG3027%2Bprj%2FrUO4IVWM14xfEN9b2WMylfOam5XgZVG%2B7LPovldcNuqp6tcJr2wUjgMMg%2FJzNnxjyJNxKhB&X-Amz-Signature=b8d32db9ae184ebb5dd5e59a97f4ed63265d322e9a86ec05d7e4047b09c2f0fd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)\n\n",
+    "author": "Russ Harris",
+    "tags": [
+      "Happiness",
+      "Self-realization",
+      "Self-actualization (psychology)"
+    ],
+    "coverUrl": "https://covers.openlibrary.org/b/id/7916587-M.jpg",
+    "resolved": true,
+    "manualAuthor": "Russ Harris"
   }
 }
