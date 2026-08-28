@@ -70,6 +70,15 @@ footer.site {
   font-size: 0.9rem;
   color: var(--muted);
 }
+footer.site .follow {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+footer.site .follow-hint {
+  margin: 0;
+  max-width: 42rem;
+  line-height: 1.5;
+}
 
 .intro {
   display: flex;
