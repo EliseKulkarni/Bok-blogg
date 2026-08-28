@@ -62,6 +62,15 @@ header.site h1 {
 }
 header.site h1 a { color: var(--text); text-decoration: none; }
 
+footer.site {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .intro {
   display: flex;
   gap: 1.75rem;

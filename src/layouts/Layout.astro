@@ -45,5 +45,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <main class:list={{ narrow }}>
       <slot />
     </main>
+    <footer class="site">
+      <p>
+        Vil du få beskjed når det kommer en ny bok?
+        <a href={`${import.meta.env.BASE_URL}rss.xml`}>Følg bloggen (RSS)</a>
+      </p>
+    </footer>
   </body>
 </html>
