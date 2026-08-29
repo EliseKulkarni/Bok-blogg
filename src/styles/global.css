@@ -217,11 +217,12 @@ article {
 }
 article :first-child { margin-top: 0; }
 
-/* Bilder i anmeldelsesteksten (fra Notion): skalér ned til spaltebredden i stedet
-   for å vises i full pikselstørrelse. */
+/* Bilder i anmeldelsesteksten (fra Notion): vis dem som et moderat, sentrert
+   element i stedet for i full pikselstørrelse. */
 article img {
   display: block;
-  max-width: 100%;
+  width: auto;
+  max-width: min(100%, 20rem);
   height: auto;
   margin: 1.5rem auto;
   border: 1px solid var(--border);
