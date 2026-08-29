@@ -79,6 +79,10 @@ footer.site .follow-hint {
   max-width: 42rem;
   line-height: 1.5;
 }
+footer.site .byline {
+  margin: 1.25rem 0 0;
+  font-size: 0.85rem;
+}
 
 .intro {
   display: flex;

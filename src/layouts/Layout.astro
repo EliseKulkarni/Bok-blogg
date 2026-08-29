@@ -10,12 +10,23 @@ interface Props {
 
 const {
   title,
-  description = "Bokanmeldelser, automatisk hentet fra Notion.",
+  description = "Bokblogg av Elise Kulkarni – korte, ærlige anmeldelser av bøker om læring, vaner og selvinnsikt.",
   image = null,
   narrow = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const siteURL = new URL(import.meta.env.BASE_URL, Astro.site).href;
+
+// Usynlig for leseren, men forteller søkemotorer hvem som står bak bloggen.
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Bokblogg",
+  url: siteURL,
+  inLanguage: "no",
+  author: { "@type": "Person", name: "Elise Kulkarni", url: siteURL },
+};
 ---
 <!doctype html>
 <html lang="no">
@@ -43,6 +54,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {image && <meta name="twitter:image" content={image} />}
+
+    <meta name="author" content="Elise Kulkarni" />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
     <header class="site">
@@ -60,6 +74,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         RSS-leser (f.eks. Feedly, NetNewsWire eller Thunderbird), så dukker nye
         anmeldelser opp der automatisk.
       </p>
+      <p class="byline">Skrevet av Elise Kulkarni</p>
     </footer>
   </body>
 </html>
