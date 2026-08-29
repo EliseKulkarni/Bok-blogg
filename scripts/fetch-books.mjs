@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { Client } from "@notionhq/client";
 import { NotionToMarkdown } from "notion-to-md";
@@ -9,7 +10,77 @@ import { slugify } from "./lib/slug.mjs";
 
 const CACHE_PATH = fileURLToPath(new URL("../data/books-cache.json", import.meta.url));
 const CONTENT_DIR = fileURLToPath(new URL("../src/content/books/", import.meta.url));
+const IMAGES_DIR = fileURLToPath(new URL("../public/book-images/", import.meta.url));
+const OVERRIDES_PATH = fileURLToPath(new URL("../data/overrides.json", import.meta.url));
 const PUBLISHED_STATUSES = ["Ja", "80%"];
+
+// Manuelle overstyringer per Notion-side-ID (se data/overrides.json). Brukes når
+// Open Library bommer på omslag/forfatter/tags. Felt som er satt vinner over det
+// automatiske oppslaget; felt som mangler røres ikke.
+function loadOverrides() {
+  try {
+    return JSON.parse(fs.readFileSync(OVERRIDES_PATH, "utf-8"));
+  } catch {
+    return {};
+  }
+}
+
+// Må matche `base` i astro.config.mjs — bilder i public/ serveres under denne stien.
+const SITE_BASE = "/Bok-blogg/";
+
+// Markdown-bilder som fortsatt peker på en ekstern http(s)-adresse (typisk Notions
+// midlertidige S3-lenker, som utløper etter 1 time).
+const REMOTE_IMAGE_RE = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
+
+function hasRemoteImage(markdown) {
+  REMOTE_IMAGE_RE.lastIndex = 0;
+  return REMOTE_IMAGE_RE.test(markdown);
+}
+
+// Laster ned eksterne bilder til public/book-images/ og bytter ut lenken med en
+// lokal, permanent sti. Notion gir opplastede bilder en signert S3-URL som slutter
+// å virke etter en time; uten dette vises bare alt-teksten ("image.png") på siden.
+async function localizeImages(markdown, pageId) {
+  const matches = [...markdown.matchAll(REMOTE_IMAGE_RE)];
+  if (matches.length === 0) return markdown;
+
+  fs.mkdirSync(IMAGES_DIR, { recursive: true });
+  let result = markdown;
+
+  for (const [full, alt, url] of matches) {
+    let pathname;
+    try {
+      pathname = new URL(url).pathname;
+    } catch {
+      continue;
+    }
+    // Hash av stien (uten query) gir et stabilt filnavn på tvers av kjøringer,
+    // selv om den signerte query-strengen endrer seg hver gang.
+    const hash = crypto.createHash("sha1").update(pathname).digest("hex").slice(0, 10);
+    const ext = (path.extname(pathname) || ".png").toLowerCase();
+    const filename = `${pageId}-${hash}${ext}`;
+    const filepath = path.join(IMAGES_DIR, filename);
+
+    if (!fs.existsSync(filepath)) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        fs.writeFileSync(filepath, Buffer.from(await res.arrayBuffer()));
+        console.log(`[fetch-books] Lastet ned bilde ${filename}`);
+      } catch (err) {
+        console.warn(`[fetch-books] Klarte ikke laste ned bilde (${url.slice(0, 80)}…): ${err.message}`);
+        continue;
+      }
+    }
+
+    // Notion gir opplastede bilder alt-teksten "image.png" o.l. — lite nyttig, og
+    // stygt hvis bildet en dag ikke laster. Dropp den generiske teksten.
+    const cleanAlt = /^(image|img|bilde)\.\w+$/i.test(alt.trim()) ? "" : alt;
+    result = result.split(full).join(`![${cleanAlt}](${SITE_BASE}book-images/${filename})`);
+  }
+
+  return result;
+}
 
 function loadCache() {
   try {
@@ -56,6 +127,7 @@ async function main() {
 
   const notion = new Client({ auth: token });
   const n2m = new NotionToMarkdown({ notionClient: notion });
+  const overrides = loadOverrides();
 
   let pages;
   try {
@@ -81,7 +153,11 @@ async function main() {
     const lastEditedTime = page.last_edited_time;
     const cached = cache[page.id];
 
-    const contentUnchanged = cached && cached.lastEditedTime === lastEditedTime;
+    // Regn innholdet som endret hvis den cachede versjonen fortsatt har en ekstern
+    // bildelenke — da må vi hente på nytt fra Notion for å få en fersk, gyldig URL
+    // vi rekker å laste ned før den utløper.
+    const contentUnchanged =
+      cached && cached.lastEditedTime === lastEditedTime && !hasRemoteImage(cached.markdown);
 
     let markdown;
     if (contentUnchanged) {
@@ -102,6 +178,12 @@ async function main() {
       }
     }
 
+    // Last ned nyhentede Notion-bilder til repoet før de utløper. Cachet innhold er
+    // allerede lokalisert fra en tidligere kjøring.
+    if (!contentUnchanged) {
+      markdown = await localizeImages(markdown, page.id);
+    }
+
     const manualAuthor = (props.Author?.rich_text ?? []).map((t) => t.plain_text).join("") || null;
 
     // Kjør Open Library-oppslag på nytt hvis innholdet endret seg, det manuelle forfatterfeltet
@@ -115,6 +197,14 @@ async function main() {
       tags = lookup.tags;
       coverUrl = lookup.coverUrl;
       cache[page.id] = { lastEditedTime, markdown, author, tags, coverUrl, resolved: lookup.resolved, manualAuthor };
+    }
+
+    // Manuelle overstyringer vinner over Open Library-oppslaget.
+    const override = overrides[page.id];
+    if (override) {
+      if (override.author !== undefined) author = override.author;
+      if (override.tags !== undefined) tags = override.tags;
+      if (override.coverUrl !== undefined) coverUrl = override.coverUrl;
     }
 
     const teaser = await getTeaser(markdown);
