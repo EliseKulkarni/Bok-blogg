@@ -29,19 +29,19 @@ function loadOverrides() {
 const SITE_BASE = "/Bok-blogg/";
 
 // Markdown-bilder som fortsatt peker på en ekstern http(s)-adresse (typisk Notions
-// midlertidige S3-lenker, som utløper etter 1 time).
-const REMOTE_IMAGE_RE = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
+// midlertidige S3-lenker, som utløper etter 1 time). Ny RegExp per kall — en delt
+// global regex tar med seg lastIndex mellom kall og gir da falske ikke-treff.
+const remoteImageRe = () => /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
 
 function hasRemoteImage(markdown) {
-  REMOTE_IMAGE_RE.lastIndex = 0;
-  return REMOTE_IMAGE_RE.test(markdown);
+  return remoteImageRe().test(markdown);
 }
 
 // Laster ned eksterne bilder til public/book-images/ og bytter ut lenken med en
 // lokal, permanent sti. Notion gir opplastede bilder en signert S3-URL som slutter
 // å virke etter en time; uten dette vises bare alt-teksten ("image.png") på siden.
 async function localizeImages(markdown, pageId) {
-  const matches = [...markdown.matchAll(REMOTE_IMAGE_RE)];
+  const matches = [...markdown.matchAll(remoteImageRe())];
   if (matches.length === 0) return markdown;
 
   fs.mkdirSync(IMAGES_DIR, { recursive: true });
