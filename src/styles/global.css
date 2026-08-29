@@ -222,7 +222,7 @@ article :first-child { margin-top: 0; }
 article img {
   display: block;
   width: auto;
-  max-width: min(100%, 22rem);
+  max-width: min(100%, 30rem);
   height: auto;
   margin: 1.5rem auto;
   border: 1px solid var(--border);
