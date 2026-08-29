@@ -216,3 +216,14 @@ article {
   font-size: 1.02rem;
 }
 article :first-child { margin-top: 0; }
+
+/* Bilder i anmeldelsesteksten (fra Notion): skalér ned til spaltebredden i stedet
+   for å vises i full pikselstørrelse. */
+article img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
