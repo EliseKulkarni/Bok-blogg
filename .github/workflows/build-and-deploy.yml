@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Sjekk ut repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Sett opp Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: lts/*
           cache: npm
@@ -52,10 +52,10 @@ jobs:
         run: npm run build
 
       - name: Konfigurer Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Last opp build-artefakt
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
 
@@ -68,4 +68,4 @@ jobs:
     steps:
       - name: Publiser til GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
