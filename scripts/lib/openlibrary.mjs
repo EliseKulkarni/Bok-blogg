@@ -24,20 +24,62 @@ function splitTitleAuthor(rawTitle) {
   return { title: rawTitle.trim(), author: null };
 }
 
-async function searchOpenLibrary(title, author) {
-  // Kjenner vi forfatteren allerede (fra "Tittel by Forfatter"-mønsteret), bruk den til å
-  // disambiguere søket — ellers matcher vi lett feil bok når flere bøker deler tittel.
-  const authorParam = author ? `&author=${encodeURIComponent(author)}` : "";
-  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}${authorParam}&limit=1&fields=author_name,subject,cover_i`;
+async function fetchDocs(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Open Library svarte ${res.status} for "${title}"`);
+  if (!res.ok) throw new Error(`Open Library svarte ${res.status}`);
   const data = await res.json();
-  const doc = data.docs?.[0];
+  return data.docs ?? [];
+}
+
+function docToResult(doc) {
   return {
     author: doc?.author_name?.[0] ?? null,
     tags: cleanSubjects(doc?.subject ?? []),
     coverUrl: doc?.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : null,
   };
+}
+
+// Gjør forfatternavn sammenlignbare uavhengig av ordrekkefølge og "-s" i enden — fanger opp
+// vanlige skrivefeil som "Mark Howards" i stedet for "Howard Marks" når noen fyller inn
+// Author-feltet i Notion for hånd.
+function normalizeAuthorName(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-zæøå\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.replace(/s$/, ""))
+    .sort()
+    .join(" ");
+}
+
+function authorsMatch(a, b) {
+  return Boolean(a) && Boolean(b) && normalizeAuthorName(a) === normalizeAuthorName(b);
+}
+
+async function searchOpenLibrary(title, author) {
+  const fields = "fields=author_name,subject,cover_i";
+
+  if (author) {
+    // Første forsøk: la Open Library selv filtrere på forfatter — raskt og presist når
+    // navnet står skrevet nøyaktig slik Open Library har det.
+    const exactUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=1&${fields}`;
+    const [exact] = await fetchDocs(exactUrl);
+    if (exact) return docToResult(exact);
+
+    // Forfatterfilteret ga null treff — kan skyldes en skrivefeil (f.eks. navn i feil
+    // rekkefølge). Prøv på nytt uten filter, og se om et av de øverste tittel-treffene har
+    // et forfatternavn som minner om det vi har, før vi gir opp.
+    const looseUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=10&${fields}`;
+    const candidates = await fetchDocs(looseUrl);
+    const match = candidates.find((doc) => (doc.author_name ?? []).some((n) => authorsMatch(n, author)));
+    // Ingen kandidat matchet forfatteren — heller ingen omslag enn feil omslag fra en annen bok.
+    return docToResult(match);
+  }
+
+  const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1&${fields}`;
+  const [doc] = await fetchDocs(url);
+  return docToResult(doc);
 }
 
 // Open Library sine "subjects" er brukergenererte og inneholder mye internt rot
@@ -73,9 +115,13 @@ export async function lookupBook(rawTitle, knownAuthor = null) {
   let resolved;
   try {
     result = await searchOpenLibrary(cleanTitle, trustedAuthor);
-    cache[cacheKey] = result;
-    cacheDirty = true;
     resolved = true;
+    // Ikke cache et rent bomtreff (verken omslag, tags eller forfatter funnet) — ellers sitter vi
+    // fast med "fant ingenting" for alltid. Skriv bare til cachen når søket faktisk ga noe å vise.
+    if (result.coverUrl || result.tags.length > 0 || result.author) {
+      cache[cacheKey] = result;
+      cacheDirty = true;
+    }
   } catch (err) {
     console.warn(`[openlibrary] Oppslag feilet for "${cleanTitle}": ${err.message} — prøver på nytt neste kjøring.`);
     result = { author: null, tags: [], coverUrl: null };

@@ -187,9 +187,11 @@ async function main() {
     const manualAuthor = (props.Author?.rich_text ?? []).map((t) => t.plain_text).join("") || null;
 
     // Kjør Open Library-oppslag på nytt hvis innholdet endret seg, det manuelle forfatterfeltet
-    // endret seg, eller forrige oppslag var en nettverksfeil (ikke et bekreftet "fant ingenting").
+    // endret seg, eller forrige forsøk ikke fant noe (omslag/tags) å vise — da er det verdt å
+    // prøve igjen hver kjøring i stedet for å gi opp for godt på et forbigående bomtreff.
+    const previousLookupFoundSomething = cached && (cached.coverUrl || (cached.tags?.length ?? 0) > 0);
     let author, tags, coverUrl;
-    if (contentUnchanged && cached.resolved && cached.manualAuthor === manualAuthor) {
+    if (contentUnchanged && cached.resolved && previousLookupFoundSomething && cached.manualAuthor === manualAuthor) {
       ({ author, tags, coverUrl = null } = cached);
     } else {
       const lookup = await lookupBook(title, manualAuthor);
