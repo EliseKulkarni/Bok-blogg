@@ -201,6 +201,10 @@ async function main() {
       cache[page.id] = { lastEditedTime, markdown, author, tags, coverUrl, resolved: lookup.resolved, manualAuthor };
     }
 
+    // Overskrift: tekstfeltet "Headline" i Notion vinner, ellers `headline` i overrides.json.
+    const notionHeadline = (props.Headline?.rich_text ?? []).map((t) => t.plain_text).join("").trim() || null;
+    const headline = notionHeadline ?? overrides[page.id]?.headline ?? null;
+
     // Manuelle overstyringer vinner over Open Library-oppslaget.
     const override = overrides[page.id];
     if (override) {
@@ -214,6 +218,7 @@ async function main() {
     books.push({
       id: page.id,
       title,
+      headline,
       slug: slugify(title),
       rating: props["Rating 1-10"]?.number ?? null,
       status: props["Om fullført"]?.status?.name ?? null,
@@ -251,6 +256,7 @@ async function main() {
     const frontmatter = [
       "---",
       `title: ${frontmatterValue(book.title)}`,
+      `headline: ${frontmatterValue(book.headline)}`,
       `author: ${frontmatterValue(book.author)}`,
       `rating: ${book.rating ?? "null"}`,
       `status: ${frontmatterValue(book.status)}`,

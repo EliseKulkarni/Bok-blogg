@@ -5,6 +5,7 @@ const books = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/books" }),
   schema: z.object({
     title: z.string(),
+    headline: z.string().nullable().default(null),
     author: z.string().nullable(),
     rating: z.number().nullable(),
     status: z.string(),

@@ -59,7 +59,7 @@ const avgRating = ratedBooks.length
     {books.map((book) => (
       <li
         class="book-card"
-        data-title={book.data.title.toLowerCase()}
+        data-title={`${book.data.headline ?? ""} ${book.data.title}`.toLowerCase()}
         data-author={(book.data.author ?? "").toLowerCase()}
         data-tags={book.data.tags.join(", ").toLowerCase()}
         data-rating={book.data.rating ?? -1}
@@ -72,9 +72,11 @@ const avgRating = ratedBooks.length
             <div class="cover-placeholder" aria-hidden="true">{book.data.title[0]}</div>
           )}
         </a>
-        <h2><a href={`${base}bok/${book.id}/`}>{book.data.title}</a></h2>
+        <h2><a href={`${base}bok/${book.id}/`}>{book.data.headline ?? book.data.title}</a></h2>
         <p class="meta">
-          <span>{book.data.author ?? "Ukjent forfatter"}</span>
+          <span>
+            {book.data.headline && <><em>{book.data.title}</em> · </>}{book.data.author ?? "Ukjent forfatter"}
+          </span>
           {book.data.rating !== null && <span class="rating-badge">★ {book.data.rating}/10</span>}
         </p>
         {book.data.essensen && <p class="essensen">{book.data.essensen}</p>}

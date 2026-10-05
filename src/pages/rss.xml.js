@@ -13,7 +13,7 @@ export async function GET(context) {
     description: "Korte, ærlige bokanmeldelser — automatisk hentet fra Notion.",
     site: new URL(base, context.site).href,
     items: books.map((book) => ({
-      title: book.data.title,
+      title: book.data.headline ?? book.data.title,
       description:
         book.data.essensen ??
         book.data.teaser ??

@@ -28,9 +28,9 @@ const base = import.meta.env.BASE_URL;
             <div class="cover-placeholder" aria-hidden="true">{book.data.title[0]}</div>
           )}
         </a>
-        <h2><a href={`${base}bok/${book.id}/`}>{book.data.title}</a></h2>
+        <h2><a href={`${base}bok/${book.id}/`}>{book.data.headline ?? book.data.title}</a></h2>
         <p class="meta">
-          {book.data.author ?? "Ukjent forfatter"}
+          {book.data.headline && <><em>{book.data.title}</em> · </>}{book.data.author ?? "Ukjent forfatter"}
           {book.data.rating !== null && <> · {book.data.rating}/10</>}
         </p>
       </li>
