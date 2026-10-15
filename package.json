@@ -12,9 +12,12 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource/newsreader": "^5.3.0",
     "@notionhq/client": "^5.25.2",
+    "@resvg/resvg-js": "^2.6.2",
     "astro": "^7.2.4",
-    "notion-to-md": "^3.1.9"
+    "notion-to-md": "^3.1.9",
+    "satori": "^0.60.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true

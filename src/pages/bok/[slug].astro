@@ -28,6 +28,8 @@ const { title, author, rating, coverUrl, essensen, tags, status, dateAdded } = b
 const description = essensen ?? `Anmeldelse av ${title}${author ? ` av ${author}` : ""}`;
 const minutes = readingMinutes(book.body);
 const pageURL = new URL(Astro.url.pathname, Astro.site).href;
+// Biblioteksøk søker i katalogene til norske bibliotek og viser hvor boken kan lånes.
+const libraryURL = `https://bibsok.no/?mode=vt&pubsok_txt_0=${encodeURIComponent([title, author].filter(Boolean).join(" "))}`;
 
 // Strukturerte data for Google: en anmeldelse (Review) av en bok, med karakter.
 // Gir mulighet for stjerner i søkeresultatene.
@@ -54,7 +56,7 @@ const reviewData = {
 <Layout
   title={`${displayTitle(book)} — Bokblogg`}
   description={description}
-  image={coverUrl}
+  image={new URL(`${base}og/${book.id}.png`, Astro.site).href}
   type="article"
   publishedTime={dateAdded.toISOString()}
   structuredData={reviewData}
@@ -100,6 +102,10 @@ const reviewData = {
     <article class="prose">
       <Content />
     </article>
+
+    <p class="borrow">
+      Lyst til å lese den? <a href={libraryURL} rel="noopener">Se hvilke bibliotek som har den</a>
+    </p>
   </div>
 
   {related.length > 0 && (

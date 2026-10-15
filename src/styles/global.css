@@ -455,3 +455,14 @@ footer.site { background: var(--paper-2); }
   .shelf-cover img, .action { transition: none; }
   .shelf-link:hover .shelf-cover img { transform: none; }
 }
+
+.borrow { margin-top: 2.5rem; padding: 1.1rem 1.4rem; background: var(--paper-2); font-size: var(--t-small); }
+
+.about { max-width: var(--measure); }
+.about-heading { font-size: var(--t-lead); margin: 0 0 1rem; }
+.scale { margin: 0 0 2.5rem; }
+.scale div { display: grid; grid-template-columns: 4rem 1fr; gap: 1rem; padding: 0.55rem 0; }
+.scale div:nth-child(odd) { background: var(--paper-2); margin-inline: -0.75rem; padding-inline: 0.75rem; }
+.scale dt { font-weight: 600; font-variant-numeric: tabular-nums; }
+.scale dd { margin: 0; }
+.about-note { color: var(--ink-2); font-size: var(--t-small); }
