@@ -1,55 +1,130 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection, render } from "astro:content";
+import BookCard from "../../components/BookCard.astro";
+import { render } from "astro:content";
 import { slugify } from "../../lib/slug";
+import { getBooks, relatedBooks, readingMinutes, dateFormatter, displayTitle, type Book } from "../../lib/books";
 
 export async function getStaticPaths() {
-  const books = await getCollection("books");
-  return books.map((book) => ({
+  const books = await getBooks();
+  return books.map((book, i) => ({
     params: { slug: book.id },
-    props: { book },
+    // `books` er sortert nyeste først: "nyere" er forrige i lista, "eldre" er neste.
+    props: { book, newer: books[i - 1] ?? null, older: books[i + 1] ?? null, related: relatedBooks(book, books) },
   }));
 }
 
-const { book } = Astro.props;
+interface Props {
+  book: Book;
+  newer: Book | null;
+  older: Book | null;
+  related: Book[];
+}
+
+const { book, newer, older, related } = Astro.props;
 const { Content } = await render(book);
 const base = import.meta.env.BASE_URL;
-const description = book.data.essensen ?? `Anmeldelse av ${book.data.title}`;
-const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: "short", year: "numeric" });
+const { title, author, rating, coverUrl, essensen, tags, status, dateAdded } = book.data;
+const description = essensen ?? `Anmeldelse av ${title}${author ? ` av ${author}` : ""}`;
+const minutes = readingMinutes(book.body);
+const pageURL = new URL(Astro.url.pathname, Astro.site).href;
+
+// Strukturerte data for Google: en anmeldelse (Review) av en bok, med karakter.
+// Gir mulighet for stjerner i søkeresultatene.
+const reviewData = {
+  "@context": "https://schema.org",
+  "@type": "Review",
+  name: displayTitle(book),
+  url: pageURL,
+  datePublished: dateAdded.toISOString(),
+  inLanguage: "no",
+  description,
+  author: { "@type": "Person", name: "Elise Kulkarni" },
+  itemReviewed: {
+    "@type": "Book",
+    name: title,
+    ...(author && { author: { "@type": "Person", name: author } }),
+    ...(coverUrl && { image: coverUrl }),
+  },
+  ...(rating !== null && {
+    reviewRating: { "@type": "Rating", ratingValue: rating, bestRating: 10, worstRating: 1 },
+  }),
+};
 ---
 <Layout
-  title={`${book.data.headline ?? book.data.title} — Bokblogg`}
+  title={`${displayTitle(book)} — Bokblogg`}
   description={description}
-  image={book.data.coverUrl}
-  narrow
+  image={coverUrl}
+  type="article"
+  publishedTime={dateAdded.toISOString()}
+  structuredData={reviewData}
 >
-  <a class="back-link" href={base}>&larr; Alle bøker</a>
-  <div class="detail-header">
-    {book.data.coverUrl ? (
-      <img class="cover detail-cover" src={book.data.coverUrl} alt={`Omslag: ${book.data.title}`} />
-    ) : (
-      <div class="cover-placeholder detail-cover" aria-hidden="true">{book.data.title[0]}</div>
-    )}
-    <div>
-      <h1>{book.data.headline ?? book.data.title}</h1>
-      <p class="detail-meta">
-        <span>
-          {book.data.headline && <><em>{book.data.title}</em> · </>}{book.data.author ?? "Ukjent forfatter"}
-        </span>
-        {book.data.rating !== null && <span class="rating-badge">★ {book.data.rating}/10</span>}
-        <span class="upload-date">{dateFormatter.format(book.data.dateAdded)}</span>
-      </p>
-      {book.data.tags.length > 0 && (
-        <div class="tags">
-          {book.data.tags.map((tag) => (
-            <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
-          ))}
-        </div>
+  <nav class="crumbs" aria-label="Brødsmuler">
+    <a href={base}>&larr; Alle bøkene</a>
+  </nav>
+
+  <header class="book-head">
+    <div class="book-cover">
+      {coverUrl ? (
+        <img src={coverUrl} alt={`Omslaget til ${title}`} width="240" height="360" fetchpriority="high" />
+      ) : (
+        <span class="cover-blank" aria-hidden="true">{title}</span>
       )}
     </div>
+    <div class="book-head-text">
+      <h1 class="book-title">{displayTitle(book)}</h1>
+      <p class="book-of">
+        Om <cite>{title}</cite>{author && <> av {author}</>}
+      </p>
+      <dl class="book-facts">
+        {rating !== null && (
+          <div><dt>Karakter</dt><dd><strong class="score">{rating}</strong>/10</dd></div>
+        )}
+        <div><dt>Publisert</dt><dd><time datetime={dateAdded.toISOString()}>{dateFormatter.format(dateAdded)}</time></dd></div>
+        <div><dt>Lesetid</dt><dd>{minutes} min</dd></div>
+        {status === "80%" && <div><dt>Status</dt><dd>Nesten ferdig lest</dd></div>}
+      </dl>
+      {tags.length > 0 && (
+        <p class="book-tags">
+          {tags.map((tag, i) => <>{i > 0 && ", "}<a href={`${base}tag/${slugify(tag)}/`}>{tag}</a></>)}
+        </p>
+      )}
+    </div>
+  </header>
+
+  <div class="reading">
+    {essensen && (
+      <p class="essence"><strong>Essensen:</strong> {essensen}</p>
+    )}
+
+    <article class="prose">
+      <Content />
+    </article>
   </div>
-  {book.data.essensen && <p class="essensen detail-essensen">{book.data.essensen}</p>}
-  <article>
-    <Content />
-  </article>
+
+  {related.length > 0 && (
+    <section class="related" aria-labelledby="related-heading">
+      <h2 id="related-heading" class="section-title">Les også</h2>
+      <ul class="shelf-grid">
+        {related.map((b) => <BookCard book={b} />)}
+      </ul>
+    </section>
+  )}
+
+  {(newer || older) && (
+    <nav class="pager" aria-label="Flere anmeldelser">
+      {older ? (
+        <a class="pager-link" href={`${base}bok/${older.id}/`} rel="prev">
+          <span class="pager-dir">&larr; Eldre</span>
+          <span class="pager-title">{displayTitle(older)}</span>
+        </a>
+      ) : <span />}
+      {newer && (
+        <a class="pager-link next" href={`${base}bok/${newer.id}/`} rel="next">
+          <span class="pager-dir">Nyere &rarr;</span>
+          <span class="pager-title">{displayTitle(newer)}</span>
+        </a>
+      )}
+    </nav>
+  )}
 </Layout>

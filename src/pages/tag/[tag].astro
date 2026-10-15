@@ -1,39 +1,32 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getCollection } from "astro:content";
+import BookCard from "../../components/BookCard.astro";
 import { slugify } from "../../lib/slug";
+import { getBooks, tagCounts, type Book } from "../../lib/books";
 
 export async function getStaticPaths() {
-  const books = await getCollection("books");
-  const tags = [...new Set(books.flatMap((b) => b.data.tags))];
-  return tags.map((tag) => ({
+  const books = await getBooks();
+  return tagCounts(books).map(({ tag }) => ({
     params: { tag: slugify(tag) },
     props: { tag, books: books.filter((b) => b.data.tags.includes(tag)) },
   }));
 }
 
+interface Props {
+  tag: string;
+  books: Book[];
+}
+
 const { tag, books } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
-<Layout title={`${tag} — Bokblogg`} description={`Bøker merket "${tag}" på Bokblogg.`}>
-  <a class="back-link" href={base}>&larr; Alle bøker</a>
-  <h1>Tag: {tag}</h1>
-  <ul class="book-grid">
-    {books.map((book) => (
-      <li class="book-card">
-        <a class="cover-link" href={`${base}bok/${book.id}/`}>
-          {book.data.coverUrl ? (
-            <img class="cover" src={book.data.coverUrl} alt={`Omslag: ${book.data.title}`} loading="lazy" />
-          ) : (
-            <div class="cover-placeholder" aria-hidden="true">{book.data.title[0]}</div>
-          )}
-        </a>
-        <h2><a href={`${base}bok/${book.id}/`}>{book.data.headline ?? book.data.title}</a></h2>
-        <p class="meta">
-          {book.data.headline && <><em>{book.data.title}</em> · </>}{book.data.author ?? "Ukjent forfatter"}
-          {book.data.rating !== null && <> · {book.data.rating}/10</>}
-        </p>
-      </li>
-    ))}
+<Layout title={`${tag} — Bokblogg`} description={`Bokanmeldelser om ${tag.toLowerCase()} på Bokblogg.`}>
+  <nav class="crumbs" aria-label="Brødsmuler">
+    <a href={base}>Alle bøkene</a> <span aria-hidden="true">/</span> <a href={`${base}tag/`}>Temaer</a>
+  </nav>
+  <h1 class="page-title">{tag}</h1>
+  <p class="page-lead">{books.length} {books.length === 1 ? "bok" : "bøker"} om dette temaet.</p>
+  <ul class="shelf-grid">
+    {books.map((book) => <BookCard book={book} />)}
   </ul>
 </Layout>

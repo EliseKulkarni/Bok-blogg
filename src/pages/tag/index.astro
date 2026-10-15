@@ -1,0 +1,23 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { slugify } from "../../lib/slug";
+import { getBooks, tagCounts } from "../../lib/books";
+
+const tags = tagCounts(await getBooks());
+const base = import.meta.env.BASE_URL;
+---
+<Layout title="Temaer — Bokblogg" description="Alle temaene på Bokblogg, med antall anmeldte bøker per tema.">
+  <nav class="crumbs" aria-label="Brødsmuler">
+    <a href={base}>&larr; Alle bøkene</a>
+  </nav>
+  <h1 class="page-title">Temaer</h1>
+  <p class="page-lead">Bla i bøkene etter hva de handler om.</p>
+  <ul class="theme-index">
+    {tags.map(({ tag, count }) => (
+      <li>
+        <a href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
+        <span class="count">{count} {count === 1 ? "bok" : "bøker"}</span>
+      </li>
+    ))}
+  </ul>
+</Layout>

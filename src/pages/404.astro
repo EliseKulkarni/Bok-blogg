@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+<Layout title="Fant ikke siden — Bokblogg">
+  <div class="not-found">
+    <h1 class="page-title">Denne siden finnes ikke.</h1>
+    <p class="page-lead">Kanskje lenken er feilstavet, eller så har boken fått en ny adresse.</p>
+    <a class="action" href={base}>Gå til alle bøkene</a>
+  </div>
+</Layout>

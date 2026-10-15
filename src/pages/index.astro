@@ -1,134 +1,206 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
-import { slugify } from "../lib/slug";
+import BookCard from "../components/BookCard.astro";
+import { getBooks, tagCounts, displayTitle, readingMinutes } from "../lib/books";
 
-const books = (await getCollection("books")).sort(
-  (a, b) => b.data.dateAdded.valueOf() - a.data.dateAdded.valueOf()
-);
-
+const books = await getBooks();
 const base = import.meta.env.BASE_URL;
-
-const dateFormatter = new Intl.DateTimeFormat("no-NO", { day: "numeric", month: "short", year: "numeric" });
 
 const ratedBooks = books.filter((b) => b.data.rating !== null);
 const avgRating = ratedBooks.length
-  ? (ratedBooks.reduce((sum, b) => sum + (b.data.rating ?? 0), 0) / ratedBooks.length).toFixed(1)
+  ? (ratedBooks.reduce((sum, b) => sum + (b.data.rating ?? 0), 0) / ratedBooks.length).toFixed(1).replace(".", ",")
   : null;
+const favourites = ratedBooks.filter((b) => b.data.rating === 10).length;
+
+// Temaer som samler flere bøker vises som filtre (maks 10); resten finnes på /tag/.
+const allTags = tagCounts(books);
+const shared = allTags.filter((t) => t.count > 1);
+const tags = (shared.length >= 3 ? shared : allTags).slice(0, 10);
+
+const latest = books[0];
 ---
 <Layout title="Bokblogg — bokanmeldelser">
-  <section class="intro">
-    <img class="avatar" src={`${base}BildeLinkedIn.jpg`} alt="Elise" />
-    <div>
-      <h2>Hei, jeg er Elise 👋</h2>
-      <p>
+  <section class="hero">
+    <img class="avatar" src={`${base}avatar.jpg`} alt="Elise" width="160" height="160" fetchpriority="high" />
+    <div class="hero-text">
+      <h2 class="display">Hei, jeg er Elise.</h2>
+      <p class="lead">
         Jeg er student og leser mye — mest sakprosa om læring, vaner og det å
         forstå seg selv litt bedre. Her samler jeg korte, ærlige anmeldelser av
         bøkene jeg leser, automatisk hentet fra notatene mine i Notion.
       </p>
-      <p class="ps">(PS: de første anmeldelsene er skrevet litt raskt og delvis AI-oppsummert. Blir bedre etter hvert!)</p>
-      <p class="stats">
-        📚 {books.length} {books.length === 1 ? "bok anmeldt" : "bøker anmeldt"}
-        {avgRating && <> · ⭐ snitt {avgRating}/10</>}
+      <p class="note">
+        PS: de første anmeldelsene er skrevet litt raskt og delvis AI-oppsummert. Blir bedre etter hvert!
+      </p>
+      <p class="tally">
+        <span><strong>{books.length}</strong> {books.length === 1 ? "bok" : "bøker"}</span>
+        {avgRating && <span><strong>{avgRating}</strong> i snitt</span>}
+        {favourites > 0 && <span><strong>{favourites}</strong> til full pott</span>}
       </p>
     </div>
   </section>
 
-  <div class="toolbar">
-    <div class="search-field">
-      <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.5" />
-        <path d="M14 14L18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-      </svg>
-      <input
-        type="search"
-        id="book-search"
-        placeholder="Søk på tittel, forfatter eller tag …"
-        aria-label="Søk i bøker"
-      />
-    </div>
-    <div class="sort-group" role="group" aria-label="Sorter bøker">
-      <button type="button" class="sort-btn is-active" data-sort="date">Nyeste</button>
-      <button type="button" class="sort-btn" data-sort="rating">Høyest rating</button>
-    </div>
-  </div>
-
-  <p id="empty-state" class="empty-state" hidden>Fant ingen bøker som matcher søket.</p>
-
-  <ul class="book-grid" id="book-grid">
-    {books.map((book) => (
-      <li
-        class="book-card"
-        data-title={`${book.data.headline ?? ""} ${book.data.title}`.toLowerCase()}
-        data-author={(book.data.author ?? "").toLowerCase()}
-        data-tags={book.data.tags.join(", ").toLowerCase()}
-        data-rating={book.data.rating ?? -1}
-        data-date={book.data.dateAdded.valueOf()}
-      >
-        <a class="cover-link" href={`${base}bok/${book.id}/`}>
-          {book.data.coverUrl ? (
-            <img class="cover" src={book.data.coverUrl} alt={`Omslag: ${book.data.title}`} loading="lazy" />
-          ) : (
-            <div class="cover-placeholder" aria-hidden="true">{book.data.title[0]}</div>
-          )}
-        </a>
-        <h2><a href={`${base}bok/${book.id}/`}>{book.data.headline ?? book.data.title}</a></h2>
-        <p class="meta">
-          <span>
-            {book.data.headline && <><em>{book.data.title}</em> · </>}{book.data.author ?? "Ukjent forfatter"}
-          </span>
-          {book.data.rating !== null && <span class="rating-badge">★ {book.data.rating}/10</span>}
-        </p>
-        {book.data.essensen && <p class="essensen">{book.data.essensen}</p>}
-        <p class="upload-date">{dateFormatter.format(book.data.dateAdded)}</p>
-        {book.data.tags.length > 0 && (
-          <div class="tags">
-            {book.data.tags.map((tag) => (
-              <a class="tag" href={`${base}tag/${slugify(tag)}/`}>{tag}</a>
-            ))}
-          </div>
+  {latest && (
+    <section class="feature" aria-labelledby="feature-heading">
+      <h2 id="feature-heading" class="section-title feature-heading">Nyeste anmeldelse</h2>
+      <a class="feature-cover" href={`${base}bok/${latest.id}/`} tabindex="-1" aria-hidden="true">
+        {latest.data.coverUrl ? (
+          <img src={latest.data.coverUrl} alt="" width="240" height="360" />
+        ) : (
+          <span class="cover-blank">{latest.data.title}</span>
         )}
-      </li>
-    ))}
-  </ul>
+      </a>
+      <div class="feature-text">
+        <h3 class="feature-title">
+          <a href={`${base}bok/${latest.id}/`}>{displayTitle(latest)}</a>
+        </h3>
+        <p class="feature-book">
+          <cite>{latest.data.title}</cite>{latest.data.author && <> av {latest.data.author}</>}
+          {latest.data.rating !== null && <> — <strong>{latest.data.rating}/10</strong></>}
+        </p>
+        {latest.data.essensen && <p class="feature-essence">{latest.data.essensen}</p>}
+        <a class="action" href={`${base}bok/${latest.id}/`}>
+          Les anmeldelsen <span class="action-meta">({readingMinutes(latest.body)} min)</span>
+        </a>
+      </div>
+    </section>
+  )}
+
+  <section class="shelf" aria-labelledby="shelf-title">
+    <div class="shelf-head">
+      <h2 id="shelf-title" class="section-title">Alle bøkene</h2>
+      <div class="shelf-controls">
+        <label class="search">
+          <span class="sr-only">Søk i bøker</span>
+          <input
+            type="search"
+            id="book-search"
+            name="q"
+            placeholder="Søk i titler, forfattere og temaer…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+        <div class="sort" role="group" aria-label="Sorter">
+          <button type="button" class="text-btn" data-sort="date" aria-pressed="true">Nyeste</button>
+          <button type="button" class="text-btn" data-sort="rating" aria-pressed="false">Best likt</button>
+        </div>
+      </div>
+    </div>
+
+    {tags.length > 0 && (
+      <div class="themes" role="group" aria-label="Filtrer på tema">
+        <span class="themes-label">Tema:</span>
+        <button type="button" class="text-btn" data-tag="" aria-pressed="true">alle</button>
+        {tags.map(({ tag, count }) => (
+          <button type="button" class="text-btn" data-tag={tag.toLowerCase()} aria-pressed="false">
+            {tag}<span class="count">{count}</span>
+          </button>
+        ))}
+        {allTags.length > tags.length && <a class="themes-more" href={`${base}tag/`}>alle {allTags.length} temaer</a>}
+      </div>
+    )}
+
+    <p id="result-count" class="result-count" aria-live="polite"></p>
+    <p id="empty-state" class="empty-state" hidden>
+      Ingen bøker passer søket. <button type="button" id="reset-filters" class="text-btn is-link">Vis alle bøkene</button>
+    </p>
+
+    <ul class="shelf-grid" id="book-grid">
+      {books.map((book) => <BookCard book={book} />)}
+    </ul>
+  </section>
 </Layout>
 
 <script>
-  const grid = document.getElementById("book-grid");
-  const cards = Array.from(document.querySelectorAll(".book-card"));
-  const searchInput = document.getElementById("book-search");
-  const sortButtons = document.querySelectorAll(".sort-btn");
-  const emptyState = document.getElementById("empty-state");
+  const grid = document.getElementById("book-grid")!;
+  const items = Array.from(grid.querySelectorAll<HTMLElement>(".shelf-item"));
+  const searchInput = document.getElementById("book-search") as HTMLInputElement;
+  const sortButtons = document.querySelectorAll<HTMLButtonElement>("[data-sort]");
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>("[data-tag]");
+  const emptyState = document.getElementById("empty-state")!;
+  const resultCount = document.getElementById("result-count")!;
 
-  let sortBy = "date";
+  // Tilstanden speiles i URL-en (?q=…&tag=…&sort=…) slik at et filtrert utvalg kan deles som lenke.
+  const params = new URLSearchParams(location.search);
+  let query = params.get("q") ?? "";
+  let activeTag = (params.get("tag") ?? "").toLowerCase();
+  let sortBy = params.get("sort") === "rating" ? "rating" : "date";
+  searchInput.value = query;
 
-  function applyFilterAndSort() {
-    const query = (searchInput?.value ?? "").trim().toLowerCase();
-
-    const sorted = [...cards].sort((a, b) => {
-      const key = sortBy === "rating" ? "rating" : "date";
-      return Number(b.dataset[key]) - Number(a.dataset[key]);
-    });
-    sorted.forEach((card) => grid?.appendChild(card));
-
-    let visibleCount = 0;
-    for (const card of cards) {
-      const haystack = `${card.dataset.title} ${card.dataset.author} ${card.dataset.tags}`;
-      const matches = query === "" || haystack.includes(query);
-      card.hidden = !matches;
-      if (matches) visibleCount++;
-    }
-
-    if (emptyState) emptyState.hidden = visibleCount !== 0;
+  function setPressed(buttons: NodeListOf<HTMLButtonElement>, isActive: (b: HTMLButtonElement) => boolean) {
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(isActive(b))));
   }
 
-  searchInput?.addEventListener("input", applyFilterAndSort);
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (query) p.set("q", query);
+    if (activeTag) p.set("tag", activeTag);
+    if (sortBy !== "date") p.set("sort", sortBy);
+    const qs = p.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+  }
 
-  sortButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      sortBy = btn.getAttribute("data-sort") ?? "date";
-      sortButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
-      applyFilterAndSort();
-    });
+  function apply() {
+    const q = query.trim().toLowerCase();
+    setPressed(sortButtons, (b) => b.dataset.sort === sortBy);
+    setPressed(tagButtons, (b) => (b.dataset.tag ?? "") === activeTag);
+
+    [...items]
+      .sort((a, b) => {
+        const key = sortBy === "rating" ? "rating" : "date";
+        // Lik karakter → nyeste først.
+        return Number(b.dataset[key]) - Number(a.dataset[key]) || Number(b.dataset.date) - Number(a.dataset.date);
+      })
+      .forEach((item) => grid.appendChild(item));
+
+    let visible = 0;
+    for (const item of items) {
+      const { title = "", author = "", tags = "", text = "" } = item.dataset;
+      const tagOk = !activeTag || tags.split("|").includes(activeTag);
+      const queryOk = !q || `${title} ${author} ${tags} ${text}`.includes(q);
+      item.hidden = !(tagOk && queryOk);
+      if (!item.hidden) visible++;
+    }
+
+    emptyState.hidden = visible !== 0;
+    resultCount.textContent = (q || activeTag) && visible > 0 ? `${visible} av ${items.length} bøker` : "";
+    syncUrl();
+  }
+
+  searchInput.addEventListener("input", () => {
+    query = searchInput.value;
+    apply();
   });
+  sortButtons.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      sortBy = btn.dataset.sort ?? "date";
+      apply();
+    })
+  );
+  tagButtons.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag ?? "";
+      activeTag = activeTag === tag ? "" : tag;
+      apply();
+    })
+  );
+  document.getElementById("reset-filters")?.addEventListener("click", () => {
+    query = "";
+    activeTag = "";
+    searchInput.value = "";
+    apply();
+    searchInput.focus();
+  });
+
+  // "/" hopper til søkefeltet, som på mange nettsider.
+  document.addEventListener("keydown", (e) => {
+    const target = e.target as HTMLElement;
+    if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(target.tagName)) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
+
+  apply();
 </script>
