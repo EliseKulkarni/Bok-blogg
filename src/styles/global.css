@@ -15,7 +15,7 @@
   --font: "Newsreader Variable", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 
   /* Fem tekststørrelser, ikke flere. */
-  --t-display: clamp(2.6rem, 1.6rem + 4.2vw, 4.75rem);
+  --t-display: clamp(2rem, 1.6rem + 1.6vw, 2.9rem);
   --t-title: clamp(1.7rem, 1.3rem + 1.6vw, 2.4rem);
   --t-lead: clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
   --t-body: 1.15rem;
@@ -129,7 +129,7 @@ footer.site { background: var(--paper-2); }
 /* ---------- Felles byggesteiner ---------- */
 
 .section-title { font-size: var(--t-title); letter-spacing: -0.02em; }
-.page-title { font-size: var(--t-display); letter-spacing: -0.035em; line-height: 1; }
+.page-title { font-size: var(--t-display); letter-spacing: -0.025em; line-height: 1.05; }
 .page-lead { font-size: var(--t-lead); margin: 1rem 0 3rem; max-width: var(--measure); }
 
 .crumbs { font-size: var(--t-small); margin-bottom: 2.5rem; color: var(--ink-2); }
@@ -192,8 +192,8 @@ footer.site { background: var(--paper-2); }
   align-items: start;
   padding-block: 2rem 4.5rem;
 }
-.avatar { width: 7.5rem; height: 7.5rem; object-fit: cover; margin-top: 0.6rem; }
-.display { font-size: var(--t-display); letter-spacing: -0.035em; line-height: 0.98; margin-bottom: 1.25rem; }
+.avatar { width: 6rem; height: 6rem; object-fit: cover; margin-top: 0.3rem; }
+.display { font-size: var(--t-title); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 1rem; }
 .lead { font-size: var(--t-lead); max-width: var(--measure); }
 .note { margin-top: 1rem; font-size: var(--t-small); color: var(--ink-2); max-width: var(--measure); }
 .tally { display: flex; flex-wrap: wrap; gap: 0.4rem 1.75rem; margin-top: 1.75rem; font-size: var(--t-small); }
@@ -219,7 +219,7 @@ footer.site { background: var(--paper-2); }
 .feature-heading { grid-area: head; font-size: var(--t-small); font-weight: 600; letter-spacing: 0; color: var(--ink-2); }
 .feature-cover { grid-area: cover; display: block; }
 .feature-text { grid-area: text; max-width: 36rem; }
-.feature-title { font-size: var(--t-display); letter-spacing: -0.035em; line-height: 1; }
+.feature-title { font-size: var(--t-title); letter-spacing: -0.02em; line-height: 1.1; }
 .feature-title a { color: var(--ink); text-decoration: none; }
 .feature-title a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
 .feature-book { margin-top: 1rem; font-size: var(--t-lead); }
@@ -319,7 +319,7 @@ footer.site { background: var(--paper-2); }
   align-items: end;
   margin-bottom: 4rem;
 }
-.book-title { font-size: var(--t-display); letter-spacing: -0.035em; line-height: 1; }
+.book-title { font-size: var(--t-display); letter-spacing: -0.025em; line-height: 1.05; }
 .book-of { margin-top: 1rem; font-size: var(--t-lead); }
 .book-facts {
   display: flex;
