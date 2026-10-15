@@ -15,7 +15,8 @@ const OVERRIDES_PATH = fileURLToPath(new URL("../data/overrides.json", import.me
 const PUBLISHED_STATUSES = ["Ja", "80%"];
 
 // Manuelle overstyringer per Notion-side-ID (se data/overrides.json). Brukes når
-// Open Library bommer på omslag/forfatter/tags. Felt som er satt vinner over det
+// Open Library bommer på omslag/forfatter/tags, eller for å vise en penere tittel
+// (`title`) og `headline`. Felt som er satt vinner over det
 // automatiske oppslaget; felt som mangler røres ikke.
 function loadOverrides() {
   try {
@@ -217,7 +218,9 @@ async function main() {
 
     books.push({
       id: page.id,
-      title,
+      // Visningstittel kan overstyres (f.eks. "Roar by Stacy Sims" -> "ROAR"), men slug-en
+      // bygges fortsatt fra Notion-tittelen så eksisterende lenker og Google-treff ikke brekker.
+      title: override?.title ?? title,
       headline,
       slug: slugify(title),
       rating: props["Rating 1-10"]?.number ?? null,

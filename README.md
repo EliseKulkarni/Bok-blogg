@@ -63,3 +63,23 @@ Under **Settings → Pages**: sett **Source** til **GitHub Actions** (ikke "Depl
 ## Legge til flere bøker
 
 Ingenting — bare skriv anmeldelsen i Notion og sett status til `Ja` eller `80%`. Siden oppdaterer seg selv innen 24 timer, eller umiddelbart hvis du trigger workflowen manuelt fra **Actions**-fanen på GitHub (**Run workflow**-knappen).
+
+## Rette opp tittel, omslag, forfatter eller tags
+
+Open Library gjetter av og til feil (feil utgave av omslaget, rotete tags osv.). Rett det i
+`data/overrides.json`, med Notion-sidens ID som nøkkel:
+
+```json
+"3e19ef86-0d22-8056-87d1-db101376a8fa": {
+  "title": "The Most Important Thing",
+  "author": "Howard Marks",
+  "headline": "En god idé, sagt ti ganger",
+  "coverUrl": "https://covers.openlibrary.org/b/id/10001222-M.jpg",
+  "tags": ["Investering", "Risiko"]
+}
+```
+
+Alle felt er valgfrie — bare de du fyller inn overstyrer. `title` endrer bare hva som vises;
+nettadressen (slug-en) bygges fortsatt fra Notion-tittelen, så gamle lenker fortsetter å virke.
+
+Prøv å gjenbruke tags som allerede finnes (se `/tag/` på siden), så samles bøker om samme tema.
