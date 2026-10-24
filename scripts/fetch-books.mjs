@@ -167,6 +167,8 @@ async function main() {
       try {
         const mdBlocks = await n2m.pageToMarkdown(page.id);
         ({ parent: markdown } = n2m.toMarkdownString(mdBlocks));
+        // Tom side (f.eks. status satt til "Ja" før teksten er skrevet) gir ingen `parent`.
+        if (!markdown?.trim()) throw new Error("siden har ingen tekst ennå");
       } catch (err) {
         console.warn(`[fetch-books] Markdown-konvertering feilet for "${title}": ${err.message}`);
         if (cached) {
